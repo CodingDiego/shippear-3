@@ -54,3 +54,4 @@ next-env.d.ts
 # local design mocks (never committed)
 /designs/
 /.swc
+.env*.local
