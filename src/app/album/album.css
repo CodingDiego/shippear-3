@@ -1,6 +1,6 @@
-/* Legendarias list: the KPI name is longer than the 2.4ch rank column. */
+/* Edición dorada list: the KPI name is longer than the 2.4ch rank column. */
 .legendarias .row {
-	grid-template-columns: 12ch 1fr 28px;
+	grid-template-columns: minmax(10ch, 18ch) 1fr 28px;
 }
 .legendarias .row > b {
 	font-family: var(--text);

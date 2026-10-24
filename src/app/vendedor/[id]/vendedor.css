@@ -75,3 +75,19 @@
 .vend-album > span {
 	padding-right: 8px;
 }
+
+/* The reveal cover sits exactly over the card; it has no pointer events, so the page stays usable while it plays. */
+.stage-host {
+	position: relative;
+}
+.reveal-cover {
+	position: absolute;
+	inset: 0;
+	z-index: 5;
+	pointer-events: none;
+}
+@media (scripting: none) {
+	.reveal-cover {
+		display: none;
+	}
+}

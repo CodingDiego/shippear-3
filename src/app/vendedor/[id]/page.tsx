@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import "./vendedor.css";
 import { Dorso } from "@/components/figu/dorso";
 import { Figu, FiguSkeleton, type Foil } from "@/components/figu/figu";
+import { CardReveal } from "@/components/motion/card-reveal";
 import {
 	getAlbum,
 	getLiga,
@@ -130,13 +131,11 @@ async function Content({ params }: { params: Promise<{ id: string }> }) {
 					<FlipStage
 						front={<Figu v={v} foil={foil} />}
 						back={<Dorso v={v} figusMes={figusMes} />}
+						reveal={<CardReveal card={v} foil={foil} />}
 					/>
 					<div className="actions">
 						<CopyLink />
 					</div>
-					<p className="note">
-						El clip para el grupo de la sucursal llega con el cierre de mes.
-					</p>
 				</div>
 				<div className="vend-right">
 					<section className="panel">

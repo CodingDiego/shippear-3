@@ -1,0 +1,189 @@
+/* Admin "Juegos": switches grid and the measures dashboard. Tokens only. */
+.jg {
+	padding-bottom: 48px;
+}
+.jg-simulado {
+	padding: 12px 16px;
+	border-radius: var(--radius-s);
+	background: var(--amarillo-bg);
+	color: var(--ink);
+	font-size: 14px;
+	max-width: 80ch;
+}
+.jg-sub {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--ink);
+}
+
+/* Ranking of the three games. */
+.jg-resumen {
+	display: grid;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+@media (min-width: 900px) {
+	.jg-resumen {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+.jg-resumen > li {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 14px;
+	align-items: start;
+}
+.jg-puesto {
+	font-family: var(--display);
+	font-size: 40px;
+	font-weight: 800;
+	line-height: 1;
+	color: var(--azul);
+}
+.jg-nombre {
+	font-size: 17px;
+	font-weight: 700;
+	color: var(--ink);
+}
+.jg-off {
+	font-size: 14px;
+	font-weight: 400;
+	color: var(--rojo);
+}
+.jg-motivo {
+	margin-top: 6px;
+	font-size: 15px;
+	color: var(--ink-2);
+}
+
+/* Switches. */
+.jg-switches {
+	display: grid;
+	gap: 12px;
+}
+.jg-global {
+	display: grid;
+	gap: 8px;
+}
+.jg-global-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 28px;
+}
+.jg-mes {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+}
+.jg-aviso {
+	margin-top: 8px;
+	color: var(--amarillo);
+}
+.jg-grid-wrap {
+	margin-top: 12px;
+	max-width: 640px;
+}
+.jg-grid {
+	table-layout: fixed;
+}
+.jg-grid th[scope="row"] {
+	text-align: left;
+	font-weight: 500;
+	font-size: 15px;
+	color: var(--ink);
+	padding: 4px 10px 4px 0;
+	border-top: 1px solid var(--line);
+	overflow-wrap: anywhere;
+}
+.jg-grid th:first-child {
+	width: 40%;
+	padding-left: 0;
+}
+.jg-grid td {
+	padding: 0 4px;
+	text-align: right;
+}
+.jg-grid .switch {
+	justify-content: flex-end;
+	gap: 0;
+}
+/* Switched on here but off nationally: the knob stays, the track fades. */
+.jg-grid .switch[data-pais-off] {
+	opacity: 0.45;
+}
+.jg-estado {
+	min-height: 1.5em;
+	margin-top: 8px;
+}
+
+/* Charts and their copy. */
+.jg-controles {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 12px;
+	align-items: center;
+}
+.jg-chart {
+	display: grid;
+	gap: 16px;
+	margin-top: 12px;
+	min-width: 0;
+}
+.jg-frases {
+	display: grid;
+	gap: 12px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.jg-frases li > p:first-child {
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--ink);
+}
+.jg-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--line);
+}
+.jg-tabla-wrap {
+	overflow-x: auto;
+}
+.jg-tabla-wrap .table th[scope="row"] {
+	text-align: left;
+	font-weight: 500;
+	white-space: nowrap;
+	color: var(--ink);
+	padding: 10px 10px 10px 0;
+	border-top: 1px solid var(--line);
+}
+.jg-tabla-wrap .table th:first-child {
+	padding-left: 0;
+}
+.jg-tabla-wrap .table td {
+	white-space: nowrap;
+}
+
+/* Skeletons with the final blocks' shape. */
+.jg-sk-resumen {
+	height: 124px;
+}
+.jg-sk-global {
+	height: 132px;
+}
+.jg-sk-grid {
+	height: 820px;
+}
+.jg-sk-h2 {
+	display: block;
+	width: 200px;
+	height: 22px;
+}
+.jg-sk-chart {
+	height: 420px;
+}

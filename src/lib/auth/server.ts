@@ -1,6 +1,7 @@
 // Server-side session reads (route handlers, server actions, pages). Never call these
 // inside a "use cache" scope: read the session here and pass the plain id in.
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { env } from "@/env";
 import {
 	ADMIN_COOKIE,
@@ -16,6 +17,8 @@ import {
 /** The logged-in seller's id, or null. An admin token in the seller cookie is rejected. */
 export async function vendedorSesion(): Promise<string | null> {
 	const token = (await cookies()).get(SESSION_COOKIE)?.value;
+	// Expiry check reads the clock, so it must run at request time.
+	await connection();
 	const s = await verifySession(token, env.AUTH_SECRET);
 	return s && s.sub !== ADMIN_SUB ? s.sub : null;
 }
@@ -23,6 +26,8 @@ export async function vendedorSesion(): Promise<string | null> {
 /** Valid admin cookie. Every admin action and admin GET route calls this. */
 export async function esAdmin(): Promise<boolean> {
 	const token = (await cookies()).get(ADMIN_COOKIE)?.value;
+	// Expiry check reads the clock, so it must run at request time.
+	await connection();
 	const s = await verifySession(token, env.AUTH_SECRET);
 	return s?.sub === ADMIN_SUB;
 }

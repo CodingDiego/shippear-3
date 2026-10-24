@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import "./landing.css";
 import { Figu, FiguSkeleton } from "@/components/figu/figu";
+import type { FiguData } from "@/components/figu/figu-body";
+import { HeroPlayer } from "@/components/motion/hero-player";
 import {
 	getAlbum,
 	getDataset,
@@ -194,7 +196,23 @@ async function latest() {
 }
 
 async function Hero() {
-	const { meta, top } = await latest();
+	const { meta, period, top } = await latest();
+	// Plain values only: the Player gets them as props, with just the fields the card draws.
+	const cards: FiguData[] = period.vendedores
+		.filter((v) => v.puesto !== null)
+		.sort((a, b) => (a.puesto ?? 0) - (b.puesto ?? 0))
+		.slice(0, 5)
+		.map((v) => ({
+			vendedor: v.vendedor,
+			score: v.score,
+			tier: v.tier,
+			puesto: v.puesto,
+			de: v.de,
+			puestoSucursal: v.puestoSucursal,
+			kpis: Object.fromEntries(
+				KPI_IDS.map((k) => [k, v.kpis[k]]),
+			) as FiguData["kpis"],
+		}));
 	return (
 		<>
 			<div>
@@ -213,12 +231,14 @@ async function Hero() {
 					</Link>
 				</div>
 			</div>
-			<Figu
-				v={top}
-				foil="oro"
-				href={`/vendedor/${top.vendedor.id}`}
-				className="hero-card"
-			/>
+			<HeroPlayer cards={cards}>
+				<Figu
+					v={top}
+					foil="oro"
+					href={`/vendedor/${top.vendedor.id}`}
+					className="hero-poster"
+				/>
+			</HeroPlayer>
 		</>
 	);
 }
@@ -236,7 +256,9 @@ function HeroSkeleton() {
 					<span className="btn skeleton">Ver el ranking</span>
 				</div>
 			</div>
-			<FiguSkeleton className="hero-card" />
+			<div className="hero-stage">
+				<FiguSkeleton className="hero-poster" />
+			</div>
 		</>
 	);
 }

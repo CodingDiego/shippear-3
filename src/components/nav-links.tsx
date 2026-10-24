@@ -9,6 +9,9 @@ export const NAV = [
 	["/revelacion", "Revelación"],
 	["/album", "Álbum"],
 	["/como-funciona", "Cómo funciona"],
+	// The proxy sends a logged-out seller from /yo to /entrar.
+	["/yo", "Mi mes"],
+	["/admin", "Administración"],
 ] as const;
 
 export function NavLinks() {

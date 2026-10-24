@@ -1,5 +1,6 @@
 // Checks the seeded v2 data against SPEC-V2 and prints the numbers that go in
-// docs/PROGRESS.md. Read only. Run: bun scripts/verify-v2.ts (default local env = DEVELOPMENT).
+// docs/PROGRESS.md. Read only except check 8 (one claim, undone). Run: bun scripts/verify-v2.ts
+// (default local env = DEVELOPMENT).
 // Exits 1 when a hard check fails (monthly != daily, an effect off its truth, a broken spread).
 import { loadEnvConfig } from "@next/env";
 
@@ -33,8 +34,13 @@ async function main() {
 	const { db } = await import("../src/db/client");
 	const { CONSTANCIA_ID, hoy } = await import("../src/lib/domain");
 	const reads = await import("../src/lib/data/db-reads");
-	const { readAgregadosVentana, readConstancias, readSerieVentaDe } =
-		await import("../src/lib/data/windows");
+	const {
+		desdeConstancia,
+		readAgregadosVentana,
+		readConstancias,
+		readSerieVentaDe,
+	} = await import("../src/lib/data/windows");
+	const { reclamar, refFigu } = await import("../src/lib/data/writes");
 	const { scorePeriodV2, constancia, serieRolling } = await import(
 		"../src/lib/scoring"
 	);
@@ -64,6 +70,9 @@ async function main() {
 		"premios",
 		"ajustes",
 		"dataset_meta",
+		"planes",
+		"constancias",
+		"reclamos",
 	];
 	for (const t of tablas) {
 		const [r] = await rows<{ n: number }>(
@@ -80,6 +89,16 @@ async function main() {
 	);
 	check(rango.dom === 0, "no Sunday rows in kpi_diarios");
 	check(rango.max === hoy(), `kpi_diarios ends at hoy() (${hoy()})`);
+	const [clasicos] = await rows<{ n: number }>(
+		sql`select ((select count(*) from juegos where id::text ilike '%clasic%')
+			+ (select count(*) from juegos_sucursal where juego::text ilike '%clasic%')
+			+ (select count(*) from engagement where juego::text ilike '%clasic%')
+			+ (select count(*) from premios where juego::text ilike '%clasic%'))::int as n`,
+	);
+	check(
+		clasicos.n === 0,
+		`no clasicos rows in juegos, juegos_sucursal, engagement, premios (${clasicos.n})`,
+	);
 
 	const [d, defs, juegos] = await Promise.all([
 		reads.readDataset(),
@@ -288,6 +307,40 @@ async function main() {
 		}
 	}
 
+	// ---------- 6b. pace projection moves proyeccion ----------
+	console.log(
+		"\n6b. Tracker proyeccion vs score, every seller, month in progress",
+	);
+	const constRef = conConstancia ? await readConstancias(ref) : {};
+	const vMes = ventanaDe("mes", ref);
+	const ids = conScore.map((v) => v.vendedor.id);
+	const trackers = [];
+	for (let i = 0; i < ids.length; i += 10)
+		trackers.push(
+			...(await Promise.all(
+				ids.slice(i, i + 10).map(async (id) =>
+					tracker({
+						vendedorId: id,
+						ventana: vMes,
+						defs,
+						ajustes,
+						agregados: await readAgregadosVentana(id, vMes, defs),
+						constancia: conConstancia ? (constRef[id] ?? null) : null,
+					}),
+				),
+			)),
+		);
+	const distintos = trackers.filter(
+		(t) =>
+			t.score !== null &&
+			t.proyeccion !== null &&
+			Math.abs(t.proyeccion - t.score) > 0.005,
+	).length;
+	check(
+		trackers.length > 0 && distintos * 3 >= trackers.length,
+		`proyeccion != score for ${distintos} of ${trackers.length} sellers (need a third)`,
+	);
+
 	// ---------- 7. figus v2 ----------
 	console.log("\n7. Figus v2 (closed months, album active only)");
 	const figus = figusV2(season, d, defs, juegos);
@@ -321,6 +374,111 @@ async function main() {
 		figus.every((f) => f.periodoId !== enCurso.id),
 		"no figu in the month in progress",
 	);
+
+	// ---------- 7b. rarity tiers over (month, metric) cells ----------
+	console.log("\n7b. Rarity tiers by (month, metric) cell");
+	// Album on everywhere, so a cell met only where the album is off still counts.
+	const celdas = new Map<string, string>();
+	for (const f of figusV2(season, d, defs, historia))
+		celdas.set(`${f.periodoId}|${f.metrica}`, f.rareza);
+	const objetivo = { legendaria: 5, epica: 20, rara: 35, comun: 40 };
+	for (const [tier, meta] of Object.entries(objetivo)) {
+		const n = [...celdas.values()].filter((r) => r === tier).length;
+		const s = (100 * n) / celdas.size;
+		// Ties take the harder tier, so a tier can land a few points off its share.
+		check(
+			n > 0 && Math.abs(s - meta) <= 6,
+			`${tier}: ${n} of ${celdas.size} cells (${f2(s)}%, target ${meta}%)`,
+		);
+	}
+
+	// ---------- 8. reclamar round trip ----------
+	console.log("\n8. reclamar() round trip (claim and event undone afterwards)");
+	const figu = figus[0];
+	const refR = refFigu(figu.periodoId, figu.metrica);
+	const evento = sql`fecha = ${hoy()} and vendedor_id = ${figu.vendedorId}
+		and juego = 'album' and evento = 'reclamo' and fuente = 'real'`;
+	const delReclamo = sql`vendedor_id = ${figu.vendedorId} and tipo = 'figu' and ref = ${refR}`;
+	const [antes] = await rows<{ c: number }>(
+		sql`select cantidad as c from engagement where ${evento}`,
+	);
+	const [ya] = await rows<{ n: number }>(
+		sql`select count(*)::int as n from reclamos where ${delReclamo}`,
+	);
+	check(ya.n === 0, `${figu.vendedorId} ${refR} not claimed before the test`);
+	if (ya.n === 0) {
+		let r1 = false;
+		let r2 = true;
+		let desp: { c: number } | undefined;
+		try {
+			r1 = await reclamar(figu.vendedorId, "figu", refR, figu.periodoId);
+			r2 = await reclamar(figu.vendedorId, "figu", refR, figu.periodoId);
+			[desp] = await rows<{ c: number }>(
+				sql`select cantidad as c from engagement where ${evento}`,
+			);
+		} finally {
+			await db.execute(sql`delete from reclamos where ${delReclamo}`);
+			await db.execute(
+				antes
+					? sql`update engagement set cantidad = ${antes.c} where ${evento}`
+					: sql`delete from engagement where ${evento}`,
+			);
+		}
+		check(r1 && !r2, `first claim true, repeat false (${r1}, ${r2})`);
+		check(
+			(desp?.c ?? 0) === (antes?.c ?? 0) + 1,
+			"exactly one real 'reclamo' event for the two calls",
+		);
+		const [queda] = await rows<{ n: number }>(
+			sql`select count(*)::int as n from reclamos where ${delReclamo}`,
+		);
+		check(queda.n === 0, "test claim deleted");
+	}
+
+	// ---------- 9. constancias table == pure function ----------
+	console.log(
+		"\n9. constancias table vs constancia(serieRolling) on 20 random seller-months",
+	);
+	const tabla = await rows<{
+		v: string;
+		p: string;
+		fecha: string | null;
+		valor: number | null;
+	}>(
+		sql`select vendedor_id as v, periodo_id as p, fecha::text as fecha, valor from constancias`,
+	);
+	check(
+		tabla.length === d.vendedores.length * d.periodos.length,
+		`one row per seller-month (${tabla.length})`,
+	);
+	let iguales = 0;
+	for (let i = 0; i < 20; i++) {
+		const r = tabla[Math.floor(rand() * tabla.length)];
+		const p = d.periodos.find((x) => x.id === r.p);
+		const esperada =
+			r.fecha === null
+				? null
+				: constancia(
+						serieRolling(
+							await readSerieVentaDe(r.v, desdeConstancia(r.fecha), r.fecha),
+							r.fecha,
+						),
+					);
+		const fechaOk = p?.enCurso
+			? r.fecha === hoy()
+			: r.fecha === ventanaDe("mes", `${r.p}-01`).hasta;
+		const ok =
+			fechaOk &&
+			(esperada === null
+				? r.valor === null
+				: r.valor !== null && cerca(r.valor, esperada));
+		if (ok) iguales++;
+		else
+			console.log(
+				`      mismatch ${r.v} ${r.p} fecha ${r.fecha}: table ${f3(r.valor)} vs ${f3(esperada)}`,
+			);
+	}
+	check(iguales === 20, `${iguales}/20 match (value and reference date)`);
 
 	console.log(
 		fallas.length === 0

@@ -14,9 +14,11 @@ import {
 import { getQueryClient } from "@/lib/query/client";
 import { rankingOptions } from "@/lib/query/options";
 import { byPuesto, loadRanking } from "@/lib/query/ranking";
-import { loadSearchParams } from "@/lib/search-params";
 import { RankingClient } from "./_components/ranking-client";
+import { Resort } from "./_components/resort";
+import { ResortSkeleton } from "./_components/resort-skeleton";
 import { ControlsSkeleton, GridSkeleton } from "./_components/skeletons";
+import { consulta, loadScopeParams } from "./scope";
 
 export const metadata = { title: "Ranking" };
 
@@ -27,7 +29,7 @@ export default function RankingPage(props: PageProps<"/ranking">) {
 		<main className="wrap">
 			<header className="title rk-title">
 				<div>
-					<h1>Ranking general</h1>
+					<h1>Ranking de vendedores</h1>
 					<Suspense
 						fallback={
 							<p>
@@ -73,7 +75,7 @@ export default function RankingPage(props: PageProps<"/ranking">) {
 
 async function resolve(searchParams: SP) {
 	const [sp, meta] = await Promise.all([
-		loadSearchParams(searchParams),
+		loadScopeParams(searchParams),
 		getSeasonMeta(),
 	]);
 	// Unknown or empty periodo falls back to the latest period with data.
@@ -92,10 +94,10 @@ async function Lead({ searchParams }: { searchParams: SP }) {
 		<p>
 			<b>
 				{shortName(top.vendedor)}, de {sucursalNombre(top.vendedor.sucursal)},
-				es #1 con {fmtScore(top.score)}.
+				es el número 1 del país con {fmtScore(top.score)} puntos.
 			</b>{" "}
 			{scored.length} vendedores con datos en {mesNombre(periodo)}: {n("verde")}{" "}
-			arriba, {n("amarillo")} en carrera, {n("rojo")} abajo.
+			arriba, {n("amarillo")} en carrera y {n("rojo")} abajo.
 		</p>
 	);
 }
@@ -114,12 +116,7 @@ async function RankingBody({ searchParams }: { searchParams: SP }) {
 	await connection();
 	const { sp, meta, periodo } = await resolve(searchParams);
 	const queryClient = getQueryClient();
-	const params = {
-		periodo,
-		vista: sp.vista,
-		sucursal: sp.sucursal,
-		canal: sp.canal,
-	};
+	const params = consulta(sp, meta.periodos, meta.latest);
 	// The browser queryFn fetches /api/ranking; on the server call the same loader.
 	await queryClient.prefetchQuery({
 		...rankingOptions(params),
@@ -128,7 +125,19 @@ async function RankingBody({ searchParams }: { searchParams: SP }) {
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
 			<NuqsAdapter>
-				<RankingClient periodos={meta.periodos} latest={meta.latest} />
+				<RankingClient
+					periodos={meta.periodos}
+					latest={meta.latest}
+					resort={
+						<Suspense fallback={<ResortSkeleton />}>
+							<Resort
+								periodo={periodo}
+								periodos={meta.periodos}
+								vista={sp.vista}
+							/>
+						</Suspense>
+					}
+				/>
 			</NuqsAdapter>
 		</HydrationBoundary>
 	);

@@ -23,3 +23,18 @@
 .rk-scroll .table td.bad {
 	color: var(--rojo);
 }
+.rk-controls + .rk-controls {
+	margin-top: 10px;
+}
+/* The top 5 animation: same box while loading and loaded, so nothing shifts. */
+.rk-resort {
+	max-width: 720px;
+	aspect-ratio: 720 / 364;
+	border-radius: var(--radius);
+	overflow: hidden;
+	background: var(--bg-2);
+}
+.rk-replay {
+	min-height: 44px;
+	padding-top: 8px;
+}

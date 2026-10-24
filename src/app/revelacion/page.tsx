@@ -32,6 +32,12 @@ export default function Page() {
 			<Suspense fallback={<BodySkeleton />}>
 				<Body />
 			</Suspense>
+			<h2 className="h2">Cómo se calcula</h2>
+			<ul className="note grid list-disc gap-2 pl-5">
+				{REGLAS.map((t) => (
+					<li key={t}>{t}</li>
+				))}
+			</ul>
 		</main>
 	);
 }
@@ -52,7 +58,12 @@ async function Lead() {
 	const a = r.absoluta[0];
 	const v = a && ids.get(a.vendedorId);
 	if (!a || !v || !r.periodoId)
-		return <p>Hace falta un segundo mes con datos para comparar.</p>;
+		return (
+			<p>
+				Todavía no hay con qué comparar: hacen falta dos meses cerrados con la
+				Revelación activa en la sucursal.
+			</p>
+		);
 	const prev = meta.periodos[meta.periodos.indexOf(r.periodoId) - 1];
 	return (
 		<p>
@@ -66,6 +77,12 @@ async function Lead() {
 		</p>
 	);
 }
+
+const REGLAS = [
+	"Se compara el último mes cerrado con el anterior, nunca el mes en curso.",
+	"Solo juegan los vendedores de las sucursales donde la Revelación estaba activa ese mes. Un mes con el juego apagado cuenta como mes sin puntaje y corta la racha.",
+	"Suba absoluta: más puntos ganados. Suba relativa: más avance sobre lo que le faltaba para llegar a 100. Racha: tres meses seguidos subiendo o más. Remontada: el mayor ascenso desde su peor puesto del año, con al menos seis meses de datos.",
+];
 
 type Item = { id: string; value: string; extra: string };
 

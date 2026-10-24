@@ -1,0 +1,57 @@
+/*
+ * Card face v2: head (score and rank), name, then the eight KPI cells fill the rest of the
+ * face, so the card reads full at any size. Loaded after globals.css; the doubled class
+ * keeps these rules ahead of the base ones.
+ */
+.figu.figu {
+	grid-template-rows: auto auto 1fr;
+}
+.figu.figu .figu-name {
+	align-self: start;
+}
+.figu.figu .figu-kpis {
+	align-self: stretch;
+	grid-auto-rows: 1fr;
+	gap: 0 5cqi;
+	margin-top: 5cqi;
+}
+.figu.figu .figu-kpis > * {
+	flex-direction: column;
+	justify-content: center;
+	gap: 0;
+	border-top: 1px solid var(--line);
+}
+.figu.figu .figu-kpis b {
+	font-family: var(--display);
+	font-weight: 800;
+	font-size: 9.5cqi;
+	line-height: 1;
+	min-width: 0;
+}
+.figu.figu .figu-kpis span {
+	font-size: max(10px, 4.6cqi);
+	line-height: 1.2;
+}
+@container (max-width: 160px) {
+	.figu.figu .figu-kpis > * {
+		flex-direction: row;
+		align-items: center;
+		gap: 2cqi;
+	}
+	.figu.figu .figu-kpis b {
+		font-family: var(--text);
+		font-size: max(11px, 5.6cqi);
+		min-width: 4.6ch;
+	}
+	.figu.figu .figu-kpis span {
+		font-size: max(11px, 5.6cqi);
+	}
+}
+@container (max-width: 110px) {
+	.figu.figu {
+		grid-template-rows: auto 1fr;
+	}
+	.figu.figu .figu-name {
+		align-self: end;
+	}
+}

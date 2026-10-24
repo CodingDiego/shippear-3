@@ -1,0 +1,187 @@
+.yo-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 16px;
+}
+.yo-title > div {
+	min-width: 0;
+}
+.yo-layout {
+	display: grid;
+	gap: 16px;
+}
+.yo-main {
+	display: grid;
+	gap: 16px;
+	min-width: 0;
+	align-content: start;
+}
+.yo-side {
+	min-width: 0;
+}
+.yo-figu {
+	max-width: 300px;
+}
+.yo-h2-top {
+	margin-top: 0;
+}
+@media (min-width: 900px) {
+	.yo-layout {
+		grid-template-columns: minmax(0, 1fr) 300px;
+		gap: 24px;
+	}
+}
+
+.yo-panel {
+	display: grid;
+	gap: 20px;
+}
+.yo-panel > .tabs {
+	justify-self: start;
+}
+.yo-tracker {
+	display: grid;
+	gap: 16px;
+}
+.yo-lead {
+	font-family: var(--display);
+	font-size: clamp(26px, 3vw, 34px);
+	font-weight: 800;
+	line-height: 1.05;
+	color: var(--ink);
+	text-wrap: balance;
+}
+.yo-sug-titulo {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--ink-2);
+}
+.yo-sug {
+	margin: -8px 0 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 8px;
+}
+.yo-sug li {
+	padding: 10px 14px;
+	border-radius: var(--radius-s);
+	background: var(--azul-tint);
+	color: var(--azul);
+	font-weight: 600;
+}
+.yo-aviso {
+	padding: 10px 14px;
+	border-radius: var(--radius-s);
+	background: var(--amarillo-bg);
+	color: var(--ink);
+	font-size: 14px;
+}
+
+.yo-stats {
+	display: grid;
+	gap: 8px;
+}
+.yo-stat-note {
+	margin-top: 8px;
+}
+.yo-puestos {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.yo-temporada {
+	display: grid;
+	gap: 16px;
+	margin-top: 16px;
+}
+.yo-claims {
+	min-width: 0;
+}
+.yo-items {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: grid;
+	gap: 8px;
+}
+.yo-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 12px 16px;
+	border-radius: var(--radius-s);
+	background: var(--bg-2);
+}
+.yo-item[data-hecho] {
+	background: var(--bg-3);
+}
+.yo-item .btn {
+	flex: none;
+}
+.yo-item-texto {
+	display: grid;
+	gap: 2px;
+	min-width: 0;
+	font-size: 14px;
+	color: var(--ink-2);
+}
+.yo-item-texto b {
+	font-size: 15px;
+	color: var(--ink);
+	overflow-wrap: anywhere;
+}
+.yo-tag {
+	justify-self: start;
+	padding: 1px 8px;
+	border-radius: 999px;
+	background: var(--azul-tint);
+	color: var(--azul);
+	font-size: 12px;
+	font-weight: 700;
+}
+.yo-tag[data-tipo="premio"] {
+	background: var(--amarillo-bg);
+	color: var(--amarillo);
+}
+.yo-cuando {
+	flex: none;
+	font-size: 13px;
+	color: var(--ink-3);
+}
+.yo-dialogo {
+	width: min(360px, calc(100vw - 32px));
+	/* Tailwind preflight zeroes margins; a modal dialog centres with auto. */
+	margin: auto;
+	padding: 0;
+	border: 0;
+	border-radius: var(--radius);
+	background: var(--azul-tint);
+	overflow: hidden;
+}
+.yo-dialogo::backdrop {
+	background: color-mix(in srgb, var(--ink) 60%, transparent);
+}
+.yo-dialogo form {
+	display: flex;
+	justify-content: center;
+	padding: 0 16px 16px;
+}
+@media (min-width: 900px) {
+	.yo-temporada {
+		grid-template-columns: 300px minmax(0, 1fr);
+		align-items: start;
+		gap: 24px;
+	}
+	.yo-temporada .yo-claims .h2:first-child {
+		margin-top: 0;
+	}
+}
+@media (max-width: 480px) {
+	.yo-item {
+		flex-wrap: wrap;
+	}
+}

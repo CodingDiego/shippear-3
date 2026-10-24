@@ -5,3 +5,7 @@
 .liga .tscroll {
 	overflow-x: auto;
 }
+.liga .liga-prov {
+	margin-top: 10px;
+	overflow-x: auto;
+}
