@@ -90,3 +90,34 @@ Sign-off of the engine fixes (Clásicos removal, rarity by quantile, materialise
   - `constancias` table: one row per seller-month (1807), and 20 of 20 random rows match `constancia(serieRolling(...))` in value and reference date.
 - `bun --env-file=.env.development.local x next build`: exit 0 in 42 s (compile 18.9 s, 59 static pages in 10.2 s). No "took too long" or blocking-route errors. Next loads `.env.local` over `.env.production`, so the build reads the same database as the scripts. Routes: `/`, `/album`, `/revelacion`, `/entrar`, `/kpi/venta`, `/kpi/prod` static (1h / 1d); `/admin/*`, `/liga`, `/ranking`, `/ranking/provincia/*`, `/ranking/sucursal/*`, `/vendedor/[id]`, `/yo` partial prerender; `/api/*`, `/admin/juegos/medidas` and the workflow routes dynamic.
 - `grep -ri clasic src e2e`: no matches.
+
+## v2 screens
+
+Integration sign-off, 2026-10-24, against the DEVELOPMENT database. Nothing committed.
+
+### Routes
+
+- Public: `/` (hero animation), `/ranking` (Alcance tabs País / Provincia / Sucursal, Vendedores / Sucursales / Provincias), `/ranking/provincia/[slug]`, `/ranking/sucursal/[slug]`, `/kpi/[kpi]`, `/liga` (Nacional / Por provincia), `/revelacion`, `/album`, `/vendedor/[id]` (card reveal on open), `/como-funciona`, `/supuestos`.
+- Seller: `/entrar` (sucursal and name picker, or code plus PIN), then `/yo`: Mes and Semana tracker, Constancia, puestos in país, provincia and sucursal, this month's Figu card, figus of the season, and Reclamar with the prize animation. `/yo` without the `figu_s` cookie redirects to `/entrar`.
+- Admin: `/admin` (passcode form, then the overview), `/admin/metricas` (switch metrics on and off, weights, goal and margin per kg, seller table), `/admin/juegos` (games ranked by sales effect, switches per sucursal, Tremor charts), `/admin/premios`, `/admin/datos` (CSV import and export, Simular cierre, Reiniciar demo). Every `/admin/*` page, action and route checks the `figu_a` cookie on the server.
+
+### Logging in (no secret values here)
+
+- Seller: the PIN is not stored. It is `pinDe(codigo, PIN_SECRET ?? AUTH_SECRET)`. To get one in dev, run `bun --env-file=.env.local --env-file=.env.development.local -e 'import { pinDe } from "./src/lib/auth"; console.log(await pinDe("V001", process.env.PIN_SECRET ?? process.env.AUTH_SECRET))'`, then enter `V001` and that PIN on `/entrar`.
+- Admin: open `/admin` and enter the value of `ADMIN_PASSCODE` (in `.env.development.local` for dev, the Secret Store for other envs). Without `ADMIN_PASSCODE` set, admin login is off.
+
+### What is simulated
+
+- All sales data: 139 sellers, 16 sucursales, 13 months (October 2025 to October 2026), generated with seed 42. October 2026 is the month in progress.
+- The games history: when each sucursal turned each game on is seeded, and the generator applies known effects while a game is on (see "Games" in SPEC-V2). `/admin/juegos` says so on the page.
+- Engagement: every row is `fuente = simulado` until sellers use `/yo`. Real `vista` and `reclamo` events come from `/yo`.
+- Prizes: the seeded `premios` rows are marked `simulado`; edits on `/admin/premios` are real rows.
+- Simular cierre fills the rest of the month with generated days and closes it; Reiniciar demo reseeds with seed 42.
+
+### Checks at sign-off
+
+- `bun run check`: biome 185 files, 0 errors (16 CSS specificity warnings); tsc clean; vitest 21 files, 203 tests passed.
+- e2e: `bun --env-file=.env.development.local x playwright test` against the running dev server: 68 passed (desktop and mobile). Specs in `e2e/v2.spec.ts`: seller login with code and PIN (computed in the test from the env), tracker visible, one claim; admin login, Métricas toggle (switched back, not saved), Juegos charts, Datos, Premios; ranking scope tabs; `/ranking/provincia/santa-fe` and a 404 for an unknown province; 17 public routes at 390 and 1440 with no horizontal overflow, plus `/yo` and each admin page. The seller spec claims one item for V001 and one for V002 per run, so the pending list shrinks until the next Reiniciar demo.
+- `playwright.config.ts` now calls `loadEnvConfig(cwd, true)` against the dev server. `bun --env-file` does not reach the processes `bun x` starts, so the env files have to be loaded inside the config.
+- `bun --env-file=.env.development.local x next build`: exit 0, 59 static pages, no timeout or blocking-route errors. For the same reason, the `--env-file` vars do not reach `next`; the build reads `DATABASE_URL` from `.env.local` (over `.env.production`), which is the database the dev server uses.
+- `grep -ri "clasic\|@remotion/vercel\|@vercel/sandbox" src e2e package.json`: no matches.

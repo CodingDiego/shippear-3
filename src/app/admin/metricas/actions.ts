@@ -112,10 +112,10 @@ export async function guardarAjustes(
 	if (!p.success)
 		return {
 			error:
-				"La meta va de 1 a 100 puntos y el valor por kilo no puede ser negativo.",
+				"La meta va de 1 a 100 puntos y el margen por kilo no puede ser negativo.",
 		};
 	await setAjuste("meta_puntos", p.data.meta_puntos);
 	await setAjuste("valor_kg_ars", p.data.valor_kg_ars);
 	updateTag("config");
-	return { error: null, ok: "Meta y valor por kilo guardados." };
+	return { error: null, ok: "Meta y margen guardados." };
 }

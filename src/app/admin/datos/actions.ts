@@ -60,7 +60,7 @@ export async function revisarCsv(
 	if (p.ok === false)
 		return {
 			estado: "error",
-			mensaje: `El archivo tiene ${p.errors.length >= 50 ? "50 o más" : p.errors.length} filas con problemas. No se cambió nada.`,
+			mensaje: `${p.errors.length === 1 ? "Una fila tiene" : p.errors.length >= 50 ? "50 filas o más tienen" : `${p.errors.length} filas tienen`} problemas. No se cambió nada.`,
 			errores: p.errors,
 		};
 	const aplicar = form.get("aplicar") === "si";
