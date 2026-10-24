@@ -18,6 +18,7 @@ export const config = {
 		"/kpi/:kpi",
 		"/vendedor/:id",
 		"/yo/:path*",
+		"/entrar",
 		"/admin/:path+",
 	],
 };
@@ -53,6 +54,11 @@ async function autorizado(req: NextRequest, seg: string): Promise<boolean> {
 export async function proxy(request: NextRequest) {
 	const path = request.nextUrl.pathname;
 	const seg = path.split("/")[1];
+	// A seller who is already signed in goes straight to their month.
+	if (seg === "entrar")
+		return (await autorizado(request, seg))
+			? NextResponse.redirect(new URL("/yo", request.url))
+			: NextResponse.next();
 	if (seg === "yo" || seg === "admin") {
 		if (await autorizado(request, seg)) return NextResponse.next();
 		return NextResponse.redirect(
