@@ -1,0 +1,6 @@
+.kpi-table th:nth-child(2),
+.kpi-table td:nth-child(2),
+.kpi-table th:nth-child(3),
+.kpi-table td:nth-child(3) {
+	text-align: left;
+}

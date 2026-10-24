@@ -16,6 +16,8 @@ export const env = z
 		AUTH_SECRET: z.string().min(32),
 		APP_URL: z.url(),
 		ADMIN_PASSCODE: z.string().min(8).optional(),
+		// Seller PINs derive from this so demo PINs can be handed out without exposing AUTH_SECRET.
+		PIN_SECRET: z.string().min(16).optional(),
 		BLOB_READ_WRITE_TOKEN: z.string().min(1).optional(),
 	})
 	.parse({

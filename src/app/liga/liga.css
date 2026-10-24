@@ -1,0 +1,7 @@
+/* .table right-aligns every column but the first; these text columns stay left. */
+.liga .table .l {
+	text-align: left;
+}
+.liga .tscroll {
+	overflow-x: auto;
+}

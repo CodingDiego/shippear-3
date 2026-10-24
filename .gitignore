@@ -55,3 +55,10 @@ next-env.d.ts
 /designs/
 /.swc
 .env*.local
+
+# drizzle-kit output
+/drizzle/
+/.taste-skill/
+
+# design mocks served by next dev, not shipped
+/public/mocks/
