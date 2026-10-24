@@ -236,3 +236,10 @@ export const reclamos = pgTable(
 	},
 	(t) => [primaryKey({ columns: [t.vendedorId, t.tipo, t.ref] })],
 );
+
+// Failed seller PIN attempts per code; a code locks for 15 minutes after 5 misses.
+export const intentosPin = pgTable("intentos_pin", {
+	codigo: text("codigo").primaryKey(),
+	fallos: integer("fallos").notNull().default(0),
+	bloqueadoHasta: timestamp("bloqueado_hasta", { withTimezone: true }),
+});
