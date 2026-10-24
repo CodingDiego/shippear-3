@@ -1,0 +1,139 @@
+.flow-who {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 16px;
+	margin-block: 32px 8px;
+	padding: 0;
+	list-style: none;
+}
+.flow-who h2 {
+	font-family: var(--text);
+	font-size: 16px;
+	font-weight: 700;
+}
+.flow-who p {
+	margin-top: 6px;
+	font-size: 15px;
+	color: var(--ink-2);
+}
+
+.flow-steps {
+	list-style: none;
+	margin: 24px 0 0;
+	padding: 0;
+	counter-reset: flow;
+}
+.flow-step {
+	counter-increment: flow;
+	display: grid;
+	grid-template-columns: 56px minmax(0, 36ch) minmax(0, 1fr);
+	gap: 24px;
+	align-items: start;
+	padding-block: 32px;
+	border-top: 1px solid var(--line);
+}
+.flow-step::before {
+	content: counter(flow);
+	font-family: var(--display);
+	font-size: 44px;
+	font-weight: 800;
+	line-height: 1;
+	color: var(--azul);
+}
+.flow-step h2 {
+	font-size: clamp(22px, 2.4vw, 32px);
+}
+.flow-step p {
+	margin-top: 8px;
+	font-size: 16px;
+	color: var(--ink-2);
+}
+
+.flow-screen {
+	justify-self: end;
+	width: 100%;
+	max-width: 520px;
+	background: var(--bg-2);
+	border-radius: var(--radius);
+	padding: 14px;
+	font-size: 12px;
+	display: grid;
+	gap: 8px;
+}
+.flow-t {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	font-weight: 600;
+}
+.flow-t span {
+	font-weight: 400;
+	color: var(--ink-2);
+}
+.flow-line {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 8px 10px;
+	border-radius: var(--radius-s);
+	background: var(--bg-3);
+	color: var(--ink-2);
+}
+.flow-line b {
+	color: var(--ink);
+	font-family: var(--display);
+	font-size: 14px;
+}
+.flow-mini {
+	display: flex;
+	gap: 6px;
+}
+.flow-mini i {
+	flex: 1;
+	aspect-ratio: 5 / 7;
+	max-width: 56px;
+	border-radius: 4px;
+	background: var(--bg-4);
+}
+.flow-mini i[data-t="oro"] {
+	background: var(--oro);
+}
+.flow-mini i[data-t="verde"] {
+	background: var(--verde-fill);
+}
+.flow-mini i[data-t="amarillo"] {
+	background: var(--amarillo-fill);
+}
+.flow-mini i[data-t="rojo"] {
+	background: var(--rojo-fill);
+}
+.flow-drop {
+	padding: 18px 12px;
+	text-align: center;
+	color: var(--ink-2);
+	border: 1px dashed var(--ink-3);
+	border-radius: var(--radius-s);
+}
+.flow-screen .btn {
+	min-height: 36px;
+	padding: 0 14px;
+	font-size: 12px;
+	justify-self: start;
+}
+
+@media (max-width: 760px) {
+	.flow-step {
+		grid-template-columns: 40px minmax(0, 1fr);
+		gap: 16px;
+	}
+	.flow-step::before {
+		font-size: 36px;
+	}
+	.flow-step > div {
+		grid-column: 2;
+	}
+	.flow-screen {
+		grid-column: 2;
+		justify-self: stretch;
+	}
+}

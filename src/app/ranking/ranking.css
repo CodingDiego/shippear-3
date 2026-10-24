@@ -1,0 +1,25 @@
+.rk-title {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	gap: 8px 16px;
+}
+.rk-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+.rk-controls .rk-end {
+	margin-left: auto;
+}
+.rk-scroll {
+	overflow-x: auto;
+}
+.rk-scroll .table .l {
+	text-align: left;
+}
+.rk-scroll .table td.bad {
+	color: var(--rojo);
+}

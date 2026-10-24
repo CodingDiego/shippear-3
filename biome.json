@@ -13,7 +13,10 @@
 			"!out",
 			"!designs",
 			"!.workflow-data",
-			"!**/.well-known/workflow"
+			"!**/.well-known/workflow",
+			"!.claude",
+			"!.mcp.json",
+			"!skills-lock.json"
 		]
 	},
 	"formatter": {

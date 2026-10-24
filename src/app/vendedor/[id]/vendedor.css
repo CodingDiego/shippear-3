@@ -1,0 +1,77 @@
+.vend-layout {
+	display: grid;
+	grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
+	gap: 40px;
+	align-items: start;
+}
+@media (max-width: 859px) {
+	.vend-layout {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+.vend-left,
+.vend-right {
+	display: grid;
+	gap: 16px;
+	min-width: 0;
+}
+/* Grid items default to min-width: auto; this lets .vend-scroll scroll instead of widening the page. */
+.vend-left > *,
+.vend-right > * {
+	min-width: 0;
+}
+.vend-left .actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+.vend-scroll {
+	overflow-x: auto;
+}
+.vend-scroll .table {
+	min-width: 520px;
+}
+.vend-meses {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(52px, 1fr));
+	gap: 6px;
+}
+.vend-meses > div {
+	background: var(--bg);
+	border-radius: 8px;
+	padding: 8px 4px;
+	text-align: center;
+	display: grid;
+	font-size: 12px;
+	color: var(--ink-2);
+}
+.vend-meses b {
+	font-family: var(--display);
+	font-size: 20px;
+	font-weight: 800;
+	color: var(--ink-3);
+}
+.vend-meses small {
+	font-size: 11px;
+}
+.vend-meses [data-t="verde"] b {
+	color: var(--verde);
+}
+.vend-meses [data-t="amarillo"] b {
+	color: var(--amarillo);
+}
+.vend-meses [data-t="rojo"] b {
+	color: var(--rojo);
+}
+.vend-album {
+	display: grid;
+	/* Label plus one cell per period: PERIODOS runs 2025-10 to 2026-10 (13). */
+	grid-template-columns: auto repeat(13, minmax(0, 1fr));
+	gap: 4px;
+	align-items: center;
+	font-size: 13px;
+	color: var(--ink-2);
+}
+.vend-album > span {
+	padding-right: 8px;
+}

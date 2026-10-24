@@ -1,0 +1,17 @@
+/* Legendarias list: the KPI name is longer than the 2.4ch rank column. */
+.legendarias .row {
+	grid-template-columns: 12ch 1fr 28px;
+}
+.legendarias .row > b {
+	font-family: var(--text);
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--ink-2);
+}
+.legendarias .row .pts {
+	font-size: 14px;
+	font-weight: 400;
+	color: var(--ink-3);
+	text-align: right;
+	white-space: nowrap;
+}
