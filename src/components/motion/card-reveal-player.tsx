@@ -37,6 +37,7 @@ export default function CardRevealPlayer({
 			compositionHeight={REVEAL.height}
 			style={{ width: "100%", height: "100%" }}
 			autoPlay
+			initiallyMuted
 			controls={false}
 			clickToPlay={false}
 			spaceKeyToPlayOrPause={false}

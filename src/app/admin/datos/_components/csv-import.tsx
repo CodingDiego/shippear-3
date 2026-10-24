@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { mesNombre } from "@/lib/format";
+import { periodoLargo } from "@/lib/format";
 import { type Revision, revisarCsv } from "../actions";
 
 const n = new Intl.NumberFormat("es-AR");
@@ -72,7 +72,7 @@ export function CsvImport() {
 						{rev.diarias > 0 && `, ${n.format(rev.diarias)} filas diarias`}
 						{rev.planes > 0 && `, ${n.format(rev.planes)} planes de venta`}.
 						{rev.meses.length > 0 &&
-							` Meses: de ${mesNombre(rev.meses[0])} a ${mesNombre(rev.meses.at(-1) ?? rev.meses[0])}.`}
+							` Meses: de ${periodoLargo(rev.meses[0])} a ${periodoLargo(rev.meses.at(-1) ?? rev.meses[0])}.`}
 					</p>
 					{rev.estado === "listo" ? (
 						<>

@@ -1,12 +1,13 @@
 import { loadEnvConfig } from "@next/env";
 import { defineConfig, devices } from "@playwright/test";
 
-loadEnvConfig(process.cwd());
-
 // Three targets: dev server (default), local prod build (PW_MODE=prod),
 // or a deployed URL (PLAYWRIGHT_BASE_URL, previews need the bypass secret).
 const deployed = process.env.PLAYWRIGHT_BASE_URL;
 const prod = process.env.PW_MODE === "prod";
+
+// Against the dev server, read the same .env.development.local it uses (PIN_SECRET, ADMIN_PASSCODE).
+loadEnvConfig(process.cwd(), !prod && !deployed);
 const port = prod ? 3100 : 3000;
 const baseURL = deployed ?? `http://localhost:${port}`;
 const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;

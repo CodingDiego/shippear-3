@@ -1,18 +1,14 @@
 "use client";
 
-import { Player, type PlayerRef } from "@remotion/player";
-import { useEffect, useRef, useState } from "react";
+import { Player } from "@remotion/player";
+import { useEffect, useState } from "react";
 import { HERO, HeroComposition, type HeroProps } from "@/remotion/hero";
 
 /** The Remotion Player itself; loaded on demand by HeroPlayer so it stays out of the first bundle. */
 export default function HeroPlayerStage({ cards }: HeroProps) {
-	const ref = useRef<PlayerRef>(null);
 	// Fade in on the frame after mount, so the poster hands over to the table smoothly.
 	const [shown, setShown] = useState(false);
 	useEffect(() => {
-		// autoPlay alone left the clock at frame 0 in some loads; start it explicitly too.
-		ref.current?.play();
-		(window as unknown as { __hero?: unknown }).__hero = ref.current;
 		const id = requestAnimationFrame(() => setShown(true));
 		return () => cancelAnimationFrame(id);
 	}, []);
@@ -20,7 +16,6 @@ export default function HeroPlayerStage({ cards }: HeroProps) {
 	return (
 		<div className="hero-player" data-playing={shown} aria-hidden="true">
 			<Player
-				ref={ref}
 				component={HeroComposition}
 				inputProps={{ cards }}
 				durationInFrames={HERO.duration}
@@ -30,6 +25,8 @@ export default function HeroPlayerStage({ cards }: HeroProps) {
 				style={{ width: "100%", height: "100%" }}
 				autoPlay
 				loop
+				// No audio: muted keeps the Player from waiting on a blocked AudioContext, which froze it at frame 0.
+				initiallyMuted
 				controls={false}
 				clickToPlay={false}
 				spaceKeyToPlayOrPause={false}

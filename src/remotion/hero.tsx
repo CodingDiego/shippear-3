@@ -17,14 +17,16 @@ export const HERO = {
 	height: 840,
 	fps: 30,
 	duration: 240,
-	card: 340,
-	step: 80,
-	top: 30,
+	card: 290,
+	step: 104,
+	top: 12,
 	// Deal order, back to front: index into `cards` (0 is the best). Nothing is dealt in final order.
 	deal: [3, 0, 4, 2, 1],
 } as const;
 
 const TILT = [-3, 2.5, -2, 3, -1];
+// Sideways offset while dealt; the sort brings every card to the centre.
+const SPREAD = [-90, 80, -50, 90, -20];
 const clamp = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
 // Frames: deal 0-60, count up 45-120, re-sort 125-175, foil sweep 180-215, fade out 224-239.
 const SORT = [125, 175] as const;
@@ -43,7 +45,7 @@ export function HeroComposition({ cards }: HeroProps) {
 		...clamp,
 		easing: Easing.inOut(Easing.quad),
 	});
-	const x = (HERO.width - HERO.card) / 2;
+	const centre = (HERO.width - HERO.card) / 2;
 
 	return (
 		<AbsoluteFill
@@ -68,6 +70,7 @@ export function HeroComposition({ cards }: HeroProps) {
 					});
 					const y = interpolate(enter, [0, 1], [-HERO.card * 2, rest]);
 					const tilt = TILT[slot] * (1 - sort) * enter;
+					const x = centre + SPREAD[slot] * (1 - sort);
 					const lift = 1 + 0.05 * Math.sin(Math.PI * sort);
 					const progress = interpolate(
 						frame,
