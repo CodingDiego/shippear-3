@@ -11,7 +11,14 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
-		"format": "biome check --write"
+		"format": "biome check --write",
+		"test:e2e:prod": "PW_MODE=prod playwright test",
+		"db:generate": "drizzle-kit generate",
+		"db:push": "drizzle-kit push",
+		"db:seed": "bun scripts/seed.ts",
+		"remotion": "remotion studio src/remotion/index.ts",
+		"bundle": "remotion bundle src/remotion/index.ts --out-dir .remotion",
+		"check": "biome check && tsc --noEmit && vitest run"
 	},
 	"dependencies": {
 		"@neondatabase/serverless": "1.2.0",
@@ -37,6 +44,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.6.3",
+		"@next/env": "16.4.3",
 		"@playwright/test": "^1.64.1",
 		"@remotion/bundler": "4.0.538",
 		"@remotion/cli": "4.0.538",
