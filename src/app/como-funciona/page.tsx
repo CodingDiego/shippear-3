@@ -71,7 +71,7 @@ const STEPS: {
 	},
 	{
 		titulo: "Administración cierra el mes",
-		href: "/supuestos#csv",
+		href: "/admin",
 		texto:
 			"Al terminar el mes, administración sube el CSV del scorecard. Para la demo, un botón simula el cierre con datos de prueba. Los rankings y las figus se recalculan en el momento.",
 		screen: (

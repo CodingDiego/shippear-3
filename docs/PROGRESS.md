@@ -74,3 +74,19 @@ Integration sign-off, 2026-10-24. Five implementers filled the engine against `d
 - A cold `getSeason` is slow: it scores 12 months, and each one reads the venta series for Constancia. `next build` was not run, so it is unverified whether prerendering `/` stays under the `"use cache"` timeout.
 - After the seed, the dev server served stale Constancia for a while, because the cache filled while the seed was still writing. A restart or `updateTag("dataset")` clears it.
 - Not built yet: the `reclamos` table, the `reclamo` engagement event, and the `/yo` and `/admin` pages.
+
+## v2 engine fixes
+
+Sign-off of the engine fixes (Clásicos removal, rarity by quantile, materialised Constancia, planes and pace, claims, month close), 2026-10-24, against the DEVELOPMENT database. Nothing committed.
+
+- `bun run check`: tsc clean, vitest 21 files and 203 tests. Biome is not green yet: the engine files pass (16 CSS warnings), but UI agents were still editing their files during this run. At 16:15 the errors were format-only, in `src/app/admin/page.tsx` and in two untracked `playwright.rk*.tmp.mjs` scratch files in the repo root, all changed in the last minute. Run `bun run check` again once those agents finish.
+- Fixed at sign-off: `readPlanes` in `src/lib/data/windows.ts` now queries the `planes` table through the schema. The raw-SQL read that treated a missing table as "no plan" is gone, since the table exists.
+- No reseed was needed: the data agent's seed already includes planes, and the goals and rarity changes are read-time only. `drizzle-kit push` applied no schema change. Row counts: sucursales 16, vendedores 139, periodos 13, kpi_definiciones 9, kpi_resultados 14000, kpi_diarios 359504, juegos 3, juegos_sucursal 36, engagement 11225, premios 39, ajustes 2, dataset_meta 1, planes 1750, constancias 1807, reclamos 0.
+- `bun scripts/verify-v2.ts` (23 s): all checks passed, including these new ones:
+  - No `clasicos` row in juegos, juegos_sucursal, engagement or premios.
+  - Rarity tiers by (month, metric) cell: legendaria 5 of 95 (5.3 %), épica 19 (20.0 %), rara 33 (34.7 %), común 38 (40.0 %). One of the 96 cells had nobody meeting it, so it has no figus and no tier. By figu (album-active only): común 927, rara 537, épica 284, legendaria 56.
+  - Month in progress: `proyeccion` differs from `score` for 139 of 139 sellers (V023 95.64 vs 96.03, V054 77.12 vs 76.97).
+  - `reclamar()` round trip on V013 `2025-10:venta`: true the first time, false on repeat, exactly one real `reclamo` event. The claim row and the event are deleted afterwards.
+  - `constancias` table: one row per seller-month (1807), and 20 of 20 random rows match `constancia(serieRolling(...))` in value and reference date.
+- `bun --env-file=.env.development.local x next build`: exit 0 in 42 s (compile 18.9 s, 59 static pages in 10.2 s). No "took too long" or blocking-route errors. Next loads `.env.local` over `.env.production`, so the build reads the same database as the scripts. Routes: `/`, `/album`, `/revelacion`, `/entrar`, `/kpi/venta`, `/kpi/prod` static (1h / 1d); `/admin/*`, `/liga`, `/ranking`, `/ranking/provincia/*`, `/ranking/sucursal/*`, `/vendedor/[id]`, `/yo` partial prerender; `/api/*`, `/admin/juegos/medidas` and the workflow routes dynamic.
+- `grep -ri clasic src e2e`: no matches.

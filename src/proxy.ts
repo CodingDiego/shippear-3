@@ -8,11 +8,12 @@ import {
 	SESSION_COOKIE,
 	verifySession,
 } from "@/lib/auth";
-import { KPI_DEFS, SUCURSAL_BY_SLUG } from "@/lib/domain";
+import { KPI_DEFS, PROVINCIA_BY_SLUG, SUCURSAL_BY_SLUG } from "@/lib/domain";
 
 // Explicit paths only, so static assets and /.well-known/workflow never reach the proxy.
 export const config = {
 	matcher: [
+		"/ranking/provincia/:slug",
 		"/ranking/sucursal/:slug",
 		"/kpi/:kpi",
 		"/vendedor/:id",
@@ -25,7 +26,11 @@ export const config = {
 // Unknown params are rejected here, before streaming, to get a real 404.
 async function exists(path: string): Promise<boolean> {
 	const [, seg, a, b] = path.split("/");
-	if (seg === "ranking") return Object.hasOwn(SUCURSAL_BY_SLUG, b ?? "");
+	if (seg === "ranking")
+		return Object.hasOwn(
+			a === "provincia" ? PROVINCIA_BY_SLUG : SUCURSAL_BY_SLUG,
+			b ?? "",
+		);
 	if (seg === "kpi") return Object.hasOwn(KPI_DEFS, a);
 	const rows = await db
 		.select({ id: schema.vendedores.id })

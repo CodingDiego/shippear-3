@@ -3,7 +3,7 @@
 // Plain async functions: queries.ts wraps them in "use cache" with plain arguments.
 import { and, between, eq, inArray, max, sql } from "drizzle-orm";
 import { db } from "@/db/client";
-import { kpiDiarios } from "@/db/schema";
+import { kpiDiarios, planes } from "@/db/schema";
 import { type MetricaDef, type MetricaId, periodoDe } from "@/lib/domain";
 import type { AgregadoMetrica } from "@/lib/goals";
 import { constancia, type FilaDiaria, serieRolling } from "@/lib/scoring";
@@ -142,17 +142,17 @@ async function readPlanes(
 	kpis: readonly MetricaId[],
 ): Promise<Record<MetricaId, number>> {
 	if (kpis.length === 0) return {};
-	// shortcut: raw SQL, and a missing table reads as "no plan", because planes is not in
-	// src/db/schema.ts or the DB yet; switch to the table and drop the catch once it is pushed.
-	try {
-		const { rows } = await db.execute<{ kpi: string; den: number }>(
-			sql`select kpi, den::float8 as den from planes where vendedor_id = ${vendedorId} and periodo_id = ${periodoId} and kpi in ${kpis}`,
+	const rows = await db
+		.select({ kpi: planes.kpi, den: planes.den })
+		.from(planes)
+		.where(
+			and(
+				eq(planes.vendedorId, vendedorId),
+				eq(planes.periodoId, periodoId),
+				inArray(planes.kpi, [...kpis]),
+			),
 		);
-		return Object.fromEntries(rows.map((r) => [r.kpi, Number(r.den)]));
-	} catch (e) {
-		if ((e as { cause?: { code?: string } }).cause?.code === "42P01") return {};
-		throw e;
-	}
+	return Object.fromEntries(rows.map((r) => [r.kpi, r.den]));
 }
 
 const ventaEntre = (desde: string, hasta: string) =>

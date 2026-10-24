@@ -3,8 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import "./kpi.css";
-import { getScoredPeriod, getSeasonMeta } from "@/lib/data/queries";
-import { KPI_DEFS, KPI_IDS, type KpiId } from "@/lib/domain";
+import {
+	getMetricas,
+	getScoredPeriod,
+	getSeasonMeta,
+} from "@/lib/data/queries";
+import { efectivo, KPI_DEFS, KPI_IDS, type KpiId } from "@/lib/domain";
 import {
 	fmt1,
 	fullName,
@@ -43,7 +47,7 @@ function Skeleton() {
 		<>
 			<header className="title">
 				<h1 className="skeleton" style={{ width: 280, height: 34 }}>
-					KPI
+					Indicador
 				</h1>
 				<p>
 					<span
@@ -55,7 +59,7 @@ function Skeleton() {
 			<div className="seg" style={{ visibility: "hidden" }} aria-hidden="true">
 				<span style={{ width: 44 }} />
 			</div>
-			<h2 className="h2">Puesto</h2>
+			<h2 className="h2">Ranking</h2>
 			<div className="rows">
 				{Array.from({ length: 24 }, (_, i) => (
 					// biome-ignore lint/suspicious/noArrayIndexKey: static placeholders
@@ -74,8 +78,13 @@ async function Body({ params }: { params: Props["params"] }) {
 	const { kpi } = await params;
 	if (!isKpi(kpi)) notFound();
 	const def = KPI_DEFS[kpi];
-	const { latest } = await getSeasonMeta();
+	const [{ latest }, metricas] = await Promise.all([
+		getSeasonMeta(),
+		getMetricas(),
+	]);
 	const period = await getScoredPeriod(latest, "mes");
+	// The live weight: what is left of 100 % after the admin's active metrics are normalised.
+	const peso = efectivo(metricas)[kpi] ?? def.peso;
 	const rows = period.vendedores
 		.filter((v) => v.kpis[kpi].puesto !== null)
 		.sort((a, b) => (a.kpis[kpi].puesto ?? 0) - (b.kpis[kpi].puesto ?? 0));
@@ -86,28 +95,31 @@ async function Body({ params }: { params: Props["params"] }) {
 				<h1>{def.nombre}</h1>
 				<p>
 					<b>
-						Pesa {Math.round(def.peso * 100)} % del puntaje, objetivo{" "}
+						Pesa {Math.round(peso * 100)} % del puntaje; el objetivo es{" "}
 						{pct(def.objetivo, true)}.
 					</b>{" "}
-					Se mide como {def.num} sobre {def.den}.{" "}
-					{def.direccion === "menor" ? "Menos es mejor." : "Más es mejor."}
+					Compara {def.num} con {def.den}.{" "}
+					{def.direccion === "menor"
+						? "Cuanto más bajo, mejor."
+						: "Cuanto más alto, mejor."}
 				</p>
 			</header>
-			<nav aria-label="KPI" style={{ overflowX: "auto" }}>
+			<nav aria-label="Indicadores" style={{ overflowX: "auto" }}>
 				<div className="seg">
 					{KPI_IDS.map((k) => (
 						<Link
 							key={k}
 							href={`/kpi/${k}`}
 							aria-current={k === kpi ? "page" : undefined}
+							style={{ whiteSpace: "nowrap" }}
 						>
-							{KPI_DEFS[k].corto}
+							{KPI_DEFS[k].nombre}
 						</Link>
 					))}
 				</div>
 			</nav>
 			<h2 className="h2">
-				Puesto por {def.nombre.toLowerCase()}{" "}
+				Ranking de {def.nombre.toLowerCase()}{" "}
 				<span>
 					{periodoLargo(latest)}, {rows.length} vendedores
 				</span>
@@ -116,10 +128,10 @@ async function Body({ params }: { params: Props["params"] }) {
 				<table className="table kpi-table">
 					<thead>
 						<tr>
-							<th>#</th>
+							<th>Puesto</th>
 							<th>Vendedor</th>
 							<th>Sucursal</th>
-							<th>Valor</th>
+							<th>Resultado</th>
 							<th>Puntos</th>
 						</tr>
 					</thead>

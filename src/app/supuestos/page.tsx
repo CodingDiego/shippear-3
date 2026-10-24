@@ -42,7 +42,7 @@ const MODOS = [
 	],
 	[
 		"Álbum",
-		"Cumplir el objetivo de un KPI en el mes da su figu. La rareza depende de cuántos vendedores lo cumplieron ese mes, comparado con el resto de los KPI y meses de la temporada: el 5 % más difícil es legendaria, el siguiente 20 %, épica, el siguiente 35 %, rara, y el resto, común. Cumplir el mismo KPI tres meses seguidos la vuelve holográfica. Los tres mejores del país en ese KPI reciben la edición dorada, plateada o de bronce.",
+		"Cumplir el objetivo de un KPI en el mes da su figu. La rareza depende de cuántos vendedores lo cumplieron ese mes, comparado con el resto de los KPI y meses de la temporada: el 5 % más difícil es legendaria, el siguiente 20 %, épica, el siguiente 35 %, rara, y el resto, común. Cumplir el mismo KPI tres meses seguidos la vuelve holográfica. Los tres mejores del país en ese KPI reciben la edición dorada, plateada o de bronce. Solo se ganan figus en las sucursales donde el álbum está activo ese mes.",
 	],
 ] as const;
 

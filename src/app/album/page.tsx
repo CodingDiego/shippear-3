@@ -2,14 +2,30 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import "./album.css";
-import { getAlbum, getDataset, getSeasonMeta } from "@/lib/data/queries";
-import { KPI_DEFS, KPI_IDS } from "@/lib/domain";
+import {
+	getAlbum,
+	getDataset,
+	getMetricas,
+	getSeasonMeta,
+} from "@/lib/data/queries";
+import { KPI_IDS, METRICAS_DEFAULT, type Rareza } from "@/lib/domain";
 import { mesNombre, shortName, sucursalNombre } from "@/lib/format";
 import { albumDe } from "@/lib/modes";
 
 export const metadata: Metadata = { title: "Álbum de figuritas" };
 
 const TOP = 30;
+
+const REGLAS: [Rareza, string, string][] = [
+	[
+		"legendaria",
+		"Legendaria",
+		"El 5 % más difícil de la temporada: de todas las combinaciones de mes y KPI, las que menos vendedores cumplieron.",
+	],
+	["epica", "Épica", "El siguiente 20 % más difícil."],
+	["rara", "Rara", "El siguiente 35 %."],
+	["comun", "Común", "El resto: lo cumplió una buena parte del equipo."],
+];
 
 export default function Page() {
 	return (
@@ -23,21 +39,25 @@ export default function Page() {
 				</Suspense>
 			</div>
 
-			<Suspense fallback={<LegendariasSkeleton />}>
-				<Legendarias />
+			<Suspense fallback={<DoradasSkeleton />}>
+				<Doradas />
 			</Suspense>
 
 			<Suspense fallback={<ColeccionistasSkeleton />}>
 				<Coleccionistas />
 			</Suspense>
 
-			<h2 className="h2">Rarezas</h2>
-			<p className="note">Legendaria: oro nacional.</p>
-			<p className="note">Épica: plata o bronce nacional.</p>
-			<p className="note">Rara: oro de sucursal.</p>
-			<p className="note">Común: plata o bronce de sucursal.</p>
+			<h2 className="h2">Cómo se gana una figu</h2>
 			<p className="note">
-				Holográfica: oro nacional en el mismo KPI tres meses seguidos.
+				Un vendedor gana la figu de un KPI cuando cumple su objetivo en un mes
+				cerrado. Solo cuentan las sucursales donde el álbum está activo ese mes.
+			</p>
+			<Suspense fallback={<ReglasSkeleton />}>
+				<Reglas />
+			</Suspense>
+			<p className="note mt-3">
+				Holográfica: cumplir el mismo KPI tres meses seguidos. Edición dorada,
+				plateada o de bronce: los tres mejores del país en ese KPI y mes.
 			</p>
 		</main>
 	);
@@ -71,7 +91,10 @@ async function coleccion() {
 async function Lead() {
 	const { figus, meta, filas } = await coleccion();
 	const top = filas[0];
-	if (!top) return <p>Todavía no hay figus en el álbum.</p>;
+	if (!top || figus.length === 0)
+		return (
+			<p>Todavía no hay figus: el álbum no está activo en ninguna sucursal.</p>
+		);
 	return (
 		<p>
 			<b>
@@ -84,64 +107,72 @@ async function Lead() {
 	);
 }
 
-async function Legendarias() {
-	const { figus, d, meta } = await coleccion();
+async function Doradas() {
+	const [figus, d, meta, metricas] = await Promise.all([
+		getAlbum(),
+		getDataset(),
+		getSeasonMeta(),
+		getMetricas(),
+	]);
 	const mes = mesNombre(meta.latest);
 	const vendedores = new Map(d.vendedores.map((v) => [v.id, v]));
 	return (
 		<>
 			<h2 className="h2">
-				Legendarias de {mes} <span>oro nacional en cada KPI</span>
+				Edición dorada de {mes} <span>el mejor del país en cada KPI</span>
 			</h2>
 			<div className="rows legendarias">
-				{KPI_IDS.map((k) => {
-					const f = figus.find(
-						(x) =>
-							x.periodoId === meta.latest &&
-							x.kpi === k &&
-							x.rareza === "legendaria",
-					);
-					const v = f && vendedores.get(f.vendedorId);
-					return (
-						<div className="row" key={k}>
-							<b>{KPI_DEFS[k].corto}</b>
-							<div className="who">
-								{v ? (
-									<>
-										{shortName(v)}, <span>{sucursalNombre(v.sucursal)}</span>
-									</>
-								) : (
-									<span>sin figu</span>
-								)}
+				{metricas
+					.filter((m) => m.activa)
+					.sort((a, b) => a.orden - b.orden)
+					.map((m) => {
+						const f = figus.find(
+							(x) =>
+								x.periodoId === meta.latest &&
+								x.kpi === m.id &&
+								x.medalla === "oro",
+						);
+						const v = f && vendedores.get(f.vendedorId);
+						return (
+							<div className="row" key={m.id}>
+								<b>{m.nombre}</b>
+								<div className="who">
+									{v ? (
+										<>
+											{shortName(v)}, <span>{sucursalNombre(v.sucursal)}</span>
+										</>
+									) : (
+										<span>sin figu</span>
+									)}
+								</div>
+								<div className="pts">
+									{f && (
+										<i
+											className="sticker"
+											data-m="oro"
+											data-holo={f.holografica ? "" : undefined}
+											role="img"
+											aria-label={
+												f.holografica ? "figu holográfica" : "figu de oro"
+											}
+										/>
+									)}
+								</div>
 							</div>
-							<div className="pts">
-								{f && (
-									<i
-										className="sticker"
-										data-m="oro"
-										data-holo={f.holografica ? "" : undefined}
-										role="img"
-										aria-label={
-											f.holografica ? "figu holográfica" : "figu de oro"
-										}
-									/>
-								)}
-							</div>
-						</div>
-					);
-				})}
+						);
+					})}
 			</div>
 		</>
 	);
 }
 
-function LegendariasSkeleton() {
+function DoradasSkeleton() {
 	return (
 		<>
-			<h2 className="h2 skeleton">Legendarias de septiembre</h2>
+			<h2 className="h2 skeleton">Edición dorada de septiembre</h2>
 			<div className="rows legendarias">
-				{KPI_IDS.map((k) => (
-					<div className="row" key={k} data-loading="">
+				{METRICAS_DEFAULT.filter((m) => m.activa).map((m) => (
+					<div className="row" key={m.id} data-loading="">
 						<b>x</b>
 						<div className="who">x</div>
 						<div className="pts">x</div>
@@ -242,5 +273,54 @@ function ColeccionistasSkeleton() {
 				</table>
 			</div>
 		</>
+	);
+}
+
+function ReglasTabla({ filas }: { filas: [Rareza, string, string, number][] }) {
+	return (
+		<div className="overflow-x-auto">
+			<table className="table">
+				<thead>
+					<tr>
+						<th className="text-left!">Rareza</th>
+						<th className="text-left!">Qué es</th>
+						<th>Figus</th>
+					</tr>
+				</thead>
+				<tbody>
+					{filas.map(([id, nombre, texto, n]) => (
+						<tr key={id}>
+							<td className="text-left!">
+								<b>{nombre}</b>
+							</td>
+							<td className="text-left!">{texto}</td>
+							<td>{n}</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	);
+}
+
+async function Reglas() {
+	const figus = await getAlbum();
+	return (
+		<ReglasTabla
+			filas={REGLAS.map(([id, nombre, texto]) => [
+				id,
+				nombre,
+				texto,
+				figus.filter((f) => f.rareza === id).length,
+			])}
+		/>
+	);
+}
+
+function ReglasSkeleton() {
+	return (
+		<div className="skeleton">
+			<ReglasTabla filas={REGLAS.map((r) => [...r, 0])} />
+		</div>
 	);
 }

@@ -1,0 +1,294 @@
+/* Admin: sub-nav, forms, metric rows. Tokens only (globals.css). */
+.adm-nav {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding-top: 20px;
+}
+.adm-nav .tabs {
+	min-width: 0;
+}
+
+.adm-login {
+	display: grid;
+	gap: 12px;
+	max-width: 420px;
+}
+.adm-login label {
+	font-weight: 600;
+}
+
+.adm-input {
+	width: 100%;
+	min-width: 0;
+	height: 44px;
+	padding: 0 12px;
+	border: 1px solid var(--line);
+	border-radius: var(--radius-s);
+	background: var(--bg-2);
+	color: var(--ink);
+	font-size: 15px;
+}
+.adm-input[aria-invalid] {
+	border-color: var(--rojo);
+}
+.adm-error {
+	color: var(--rojo);
+	font-size: 14px;
+}
+.adm-ok {
+	color: var(--verde);
+	font-size: 14px;
+	font-weight: 600;
+}
+.adm-sub {
+	display: block;
+	font-size: 13px;
+	color: var(--ink-3);
+}
+.adm-lead {
+	margin-bottom: 14px;
+}
+.adm-lead code {
+	font-size: 13px;
+	overflow-wrap: anywhere;
+}
+.adm-sk-line {
+	display: block;
+	height: 22px;
+	width: 420px;
+	max-width: 100%;
+}
+.adm-sk-block {
+	min-height: 180px;
+}
+
+/* Overview */
+.adm-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 20px;
+}
+.adm-links {
+	list-style: none;
+	padding: 0;
+	margin: 24px 0 48px;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 12px;
+}
+.adm-links li {
+	display: grid;
+	gap: 4px;
+	padding: 16px 20px;
+	border-radius: var(--radius);
+	background: var(--bg-2);
+}
+.adm-links a {
+	font-weight: 700;
+	font-size: 17px;
+}
+.adm-links span {
+	font-size: 14px;
+	color: var(--ink-2);
+}
+
+/* Forms: a fluid grid of labelled fields. */
+.adm-form {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 16px;
+	align-items: end;
+}
+.adm-span {
+	grid-column: 1 / -1;
+}
+.adm-field {
+	display: grid;
+	gap: 6px;
+	min-width: 0;
+	font-size: 15px;
+}
+.adm-field > span {
+	font-size: 13px;
+	color: var(--ink-2);
+}
+.adm-field .select {
+	width: 100%;
+	height: 44px;
+}
+.adm-check {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 44px;
+}
+.adm-check input {
+	width: 20px;
+	height: 20px;
+	accent-color: var(--azul);
+}
+.adm-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+/* Metric rows: one line on wide screens, two on phones. */
+.adm-met {
+	display: grid;
+	gap: 12px;
+}
+.adm-met-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+}
+.adm-met-head,
+.adm-met-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 7rem 6rem 7rem 6rem;
+	gap: 16px;
+	align-items: center;
+}
+.adm-met-head {
+	font-size: 13px;
+	color: var(--ink-2);
+}
+.adm-met-row {
+	padding: 10px 0;
+	border-top: 1px solid var(--line);
+	min-height: 64px;
+}
+.adm-met-row .adm-field > span {
+	display: none;
+}
+.adm-met-name .switch small {
+	display: block;
+	font-size: 13px;
+	color: var(--ink-3);
+}
+.adm-ef b {
+	font-family: var(--display);
+	font-size: 22px;
+	font-weight: 800;
+	color: var(--azul);
+}
+.adm-met-row[data-off] .adm-ef b {
+	color: var(--ink-3);
+	font-weight: 400;
+}
+.adm-met-foot {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+}
+@media (max-width: 759px) {
+	.adm-met-head {
+		display: none;
+	}
+	.adm-met-row {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px 16px;
+	}
+	.adm-met-name {
+		grid-column: 1 / -1;
+	}
+	.adm-met-row .adm-field > span {
+		display: block;
+	}
+}
+
+/* Seller table */
+.adm-filtros {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+.adm-filtros .adm-field {
+	flex: 1 1 200px;
+	max-width: 320px;
+}
+.adm-scroll {
+	position: relative;
+	overflow-x: auto;
+	max-width: 100%;
+}
+.adm-scroll .table {
+	min-width: 560px;
+}
+.adm-premios td:nth-child(2) {
+	text-align: left;
+	min-width: 220px;
+}
+
+/* Datos */
+.adm-csv,
+.adm-cierre {
+	display: grid;
+	gap: 14px;
+}
+.adm-file {
+	max-width: 100%;
+	font-size: 14px;
+}
+.adm-errores {
+	margin: 8px 0 0;
+	padding-left: 20px;
+	font-size: 14px;
+}
+.adm-resumen {
+	display: grid;
+	gap: 10px;
+}
+.adm-pasos {
+	display: grid;
+	gap: 8px;
+}
+.adm-pasos ol {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: 6px;
+}
+.adm-pasos li {
+	display: flex;
+	gap: 10px;
+	align-items: baseline;
+	color: var(--ink-2);
+}
+.adm-pasos li > span:first-child {
+	width: 1.2em;
+	text-align: center;
+	font-weight: 700;
+}
+.adm-pasos li[data-hecho] {
+	color: var(--ink);
+}
+.adm-pasos li[data-hecho] > span:first-child {
+	color: var(--verde);
+}
+.adm-main {
+	padding-bottom: 48px;
+}
+.adm-cap::first-letter {
+	text-transform: uppercase;
+}
+/* Long seller list: scrolls inside its panel, the header row stays visible. */
+.adm-tall {
+	max-height: 70vh;
+	overflow-y: auto;
+	padding-top: 0;
+}
+.adm-tall th {
+	position: sticky;
+	top: 0;
+	background: var(--bg-2);
+	padding-top: 16px;
+}

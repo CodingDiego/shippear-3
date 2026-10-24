@@ -4,7 +4,12 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Figu, FiguSkeleton } from "@/components/figu/figu";
 import { getScoredPeriod, getSeasonMeta } from "@/lib/data/queries";
-import { SUCURSAL_BY_SLUG, SUCURSALES } from "@/lib/domain";
+import {
+	PROVINCIA_BY_SLUG,
+	provinciaDe,
+	SUCURSAL_BY_SLUG,
+	SUCURSALES,
+} from "@/lib/domain";
 import { fmt1, sucursalNombre } from "@/lib/format";
 import { loadSearchParams } from "@/lib/search-params";
 
@@ -47,7 +52,7 @@ function Skeleton() {
 			<div className="seg" style={{ visibility: "hidden" }} aria-hidden="true">
 				<span style={{ width: 44 }} />
 			</div>
-			<h2 className="h2">Plantel</h2>
+			<h2 className="h2">Vendedores</h2>
 			<div className="grid-figus">
 				{Array.from({ length: 24 }, (_, i) => (
 					// biome-ignore lint/suspicious/noArrayIndexKey: static placeholders
@@ -89,6 +94,8 @@ async function Body({
 				(a.puestoSucursal ?? Number.POSITIVE_INFINITY) -
 				(b.puestoSucursal ?? Number.POSITIVE_INFINITY),
 		);
+	const provSlug = provinciaDe(slug);
+	const provincia = provSlug ? PROVINCIA_BY_SLUG[provSlug] : undefined;
 	const qs = new URLSearchParams();
 	if (periodo !== meta.latest) qs.set("periodo", periodo);
 	if (sp.vista !== "mes") qs.set("vista", sp.vista);
@@ -100,10 +107,23 @@ async function Body({
 				<h1>{suc.nombre}</h1>
 				<p>
 					<b>
-						Sucursal {ranking?.puesto ?? "sin puesto"} de {SUCURSALES.length}{" "}
-						con promedio {fmt1(ranking?.score ?? null)}.
+						{ranking?.puesto
+							? `Es la sucursal número ${ranking.puesto} de ${SUCURSALES.length}`
+							: "Todavía no tiene puesto"}{" "}
+						con un promedio de {fmt1(ranking?.score ?? null)} puntos.
 					</b>{" "}
-					{plantel.length} vendedores; la empresa promedia {fmt1(empresa)}.
+					{plantel.length} vendedores; toda la empresa promedia {fmt1(empresa)}.
+					{provincia && (
+						<>
+							{" "}
+							Está en{" "}
+							<Link href={`/ranking/provincia/${provincia.slug}${suffix}`}>
+								{provincia.nombre}
+							</Link>
+							, donde ocupa el puesto {ranking?.puestoProvincia ?? "—"} entre
+							sus sucursales.
+						</>
+					)}
 				</p>
 			</header>
 			<nav aria-label="Sucursales" style={{ overflowX: "auto" }}>
@@ -121,7 +141,8 @@ async function Body({
 				</div>
 			</nav>
 			<h2 className="h2">
-				Plantel <span>{plantel.length} cartas, por puntaje en la sucursal</span>
+				Vendedores{" "}
+				<span>{plantel.length} cartas, por puntaje en la sucursal</span>
 			</h2>
 			<div className="grid-figus">
 				{plantel.map((v) => (
