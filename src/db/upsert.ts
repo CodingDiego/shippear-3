@@ -22,7 +22,7 @@ import {
 // ~5k rows per statement keeps every insert under Postgres' 65,535 bind parameters
 // (6 columns max) and the seed to a few dozen HTTP round trips.
 const BATCH = 5000;
-const PARALLEL = 4;
+const PARALLEL = 8;
 
 async function insertBatched<T>(
 	rows: readonly T[],

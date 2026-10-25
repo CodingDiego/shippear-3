@@ -8,6 +8,9 @@ import { mesAbierto } from "./data";
 
 export const metadata = { title: "Datos" };
 
+// Reiniciar demo and CSV import rewrite ~360k rows (about 13 s from Argentina); keep headroom.
+export const maxDuration = 300;
+
 export default function DatosPage() {
 	return (
 		<main className="wrap adm-main">
